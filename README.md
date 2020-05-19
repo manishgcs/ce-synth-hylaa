@@ -1,2 +1,3 @@
-# ce-synth-hylaa
-Safe and stable controller synthesis using counterexamples
+# CE-synth-Hylaa
+
+Safe and stable controller synthesis using counterexamples.
