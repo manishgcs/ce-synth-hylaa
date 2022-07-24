@@ -7,7 +7,7 @@ from hylaa.glpk_interface import LpInstance
 from hylaa.hybrid_automaton import LinearConstraint
 from hylaa.starutil import InitParent, DiscretePostParent
 from hylaa.timerutil import Timers
-from hylaa.reach_regex_milp import ReachabilityInstance, Polytope, RegexInstance
+# from hylaa.reach_regex_milp import ReachabilityInstance, Polytope, RegexInstance
 import subprocess
 import itertools
 import re
@@ -262,7 +262,6 @@ class PVObject(object):
             return lce_object
 
         # print "Number of paths is '{}'".format(len(paths))
-        longest_ce = None
         lce_length = 0
         lce_object = None
         # for node in paths[1]:
@@ -782,7 +781,9 @@ class PVObject(object):
             if len(node.disc_transitions) > 0 and node.disc_transitions[0].succ_node.cont_transition is not None:
                 node_queue.append(node.disc_transitions[0].succ_node.cont_transition.succ_node)
 
-        print("deepest point is '{}' in location '{}' with depth '{}'".format(deepest_point, deepest_node.state.mode.name, np.dot(abs(direction), deepest_point)))
+        print("deepest point is '{}' in location '{}' with depth '{}'".format(deepest_point,
+                                                                              deepest_node.state.mode.name,
+                                                                              np.dot(abs(direction), deepest_point)))
         basis_centers = []
         # basis_matrices = []
         prev_node_state = deepest_node.state
@@ -928,9 +929,9 @@ class PVObject(object):
         return longest_ce_lpi
 
     '''Find a robust point in the initial set after computing the intersection of all stars in longest ce'''
-    def compute_robust_ce(self):
+    def compute_robust_ce(self, control_synth=False):
         Timers.tic('Robust counter-example generation time')
-        lce_object = self.compute_longest_ce()
+        lce_object = self.compute_longest_ce(control_synth)
         longest_ce_lpi = lce_object.usafe_lpi
         # longest_ce_lpi = self.create_lpi(lce_object)
         directions = np.identity(self.num_dims, dtype=float)
@@ -953,7 +954,9 @@ class PVObject(object):
             robust_point[index] = np.dot(current_point, direction)
         print("Robust point is '{}'".format(robust_point))
         Timers.toc('Robust counter-example generation time')
-        return robust_point
+        lce_object.counterexample = robust_point
+        return lce_object
+        # return robust_point
 
     def check_path_feasibility(self, node, direction, basis_centers, constraints_list):
         current_constraints_list = []

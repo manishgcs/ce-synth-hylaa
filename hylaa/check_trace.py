@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import odeint
 
+
 def make_der_func(a_matrix, b_matrix, c_vector, input_vec):
     'make the derivative function with the given paremeters'
 
@@ -34,6 +35,7 @@ def make_der_func(a_matrix, b_matrix, c_vector, input_vec):
         return rv
 
     return der_func
+
 
 def check(a_matrix, b_matrix, c_vector, step, max_time, start_point, inputs, hylaa_end_point,
           quick=False, stdout=True, approx_samples=2000):
@@ -93,12 +95,12 @@ def check(a_matrix, b_matrix, c_vector, step, max_time, start_point, inputs, hyl
                 break
 
         if stdout and num_steps > 1:
-            print "Combining {} steps (identical inputs)".format(num_steps)
+            print("Combining {} steps (identical inputs)".format(num_steps))
 
         if stdout:
             elapsed = time.time() - start
             remaining = elapsed / ((1.0+index) / len(inputs)) - elapsed
-            print "{} / {} (ETA: {:.2f} sec)".format(index, len(inputs), remaining)
+            print("{} / {} (ETA: {:.2f} sec)".format(index, len(inputs), remaining))
 
         der_func = make_der_func(a_matrix, b_matrix, c_vector, inputs[index])
         new_states, new_times = sim(sim_states[-1], der_func, step * num_steps, samples_per_input * num_steps, quick)
@@ -112,36 +114,37 @@ def check(a_matrix, b_matrix, c_vector, step, max_time, start_point, inputs, hyl
 
         index += num_steps
 
-    print "Final Time: {}".format(index * step)
+    print("Final Time: {}".format(index * step))
 
     last_sim_point = sim_states[-1].copy()
     diff = last_sim_point - hylaa_end_point
     zero_row = np.array([0.0] * a_matrix.shape[0], dtype=float)
 
-    for row in xrange(a_matrix.shape[0]):
+    for row in range(a_matrix.shape[0]):
         if np.allclose(a_matrix[row], zero_row):
-            print "Skipping row {} from the error norm computation (dynamics row was zero)".format(row)
+            print("Skipping row {} from the error norm computation (dynamics row was zero)".format(row))
             diff[row] = 0.0
             last_sim_point[row] = 0.0
             hylaa_end_point[row] = 0.0
 
     numerator = np.linalg.norm(diff, ord=2)
-    print "Absolute Error (l-2 norm): {}".format(numerator)
+    print("Absolute Error (l-2 norm): {}".format(numerator))
 
     denominator = np.linalg.norm(last_sim_point, ord=2)
     
     if denominator == 0:
-        print "Relative Error (l-2 norm): N/A (denominator was 0)"
+        print("Relative Error (l-2 norm): N/A (denominator was 0)")
     else:
-        print "Relative Error (l-2 norm): {}".format(numerator / denominator)
+        print("Relative Error (l-2 norm): {}".format(numerator / denominator))
 
-    #for i in xrange(diff.shape[0]):
+    # for i in xrange(diff.shape[0]):
     #    print "Dim #{} Got {}, expected {}, diff: {}".format(i, last_sim_point[i], hylaa_end_point[i],
     #                                                         abs(hylaa_end_point[i] - last_sim_point[i]))
 
-    print "Runtime: {:.2f} seconds".format(time.time() - start)
+    print("Runtime: {:.2f} seconds".format(time.time() - start))
 
     return (sim_states, sim_times)
+
 
 def sim(start, der_func, time_amount, num_steps, quick):
     'simulate for some fixed time, and return the resultant (states, times) tuple'
@@ -149,7 +152,7 @@ def sim(start, der_func, time_amount, num_steps, quick):
     tol = 1.49012e-8
 
     if not quick:
-        tol /= 1e5 # more accurate simulation
+        tol /= 1e5  # more accurate simulation
 
     times = np.linspace(0, time_amount, num=1 + num_steps)
     states = odeint(der_func, start, times, col_deriv=True, rtol=tol, atol=tol, mxstep=50000)
@@ -160,6 +163,7 @@ def sim(start, der_func, time_amount, num_steps, quick):
     assert len(times) == num_steps
 
     return (states, times)
+
 
 def plot(sim_states, sim_times, inputs, normal_vec, normal_val, max_time, step, xdim=None, ydim=None):
     '''plot the simulation trace in the normal direction
@@ -175,11 +179,11 @@ def plot(sim_states, sim_times, inputs, normal_vec, normal_val, max_time, step, 
     end_val = np.dot(end_point, normal_vec)
 
     if end_val <= normal_val:
-        print "End Point is a violation: {} <= {}".format(end_val, normal_val)
+        print("End Point is a violation: {} <= {}".format(end_val, normal_val))
     else:
-        print "End point is NOT a violation: {} > {}".format(end_val, normal_val)
+        print("End point is NOT a violation: {} > {}".format(end_val, normal_val))
 
-    epsilon = step / 8.0 # to prevent round-off error on the end range
+    epsilon = step / 8.0  # to prevent round-off error on the end range
     input_times = np.arange(0.0, max_time + epsilon, step)
 
     if inputs is not None:
@@ -208,13 +212,13 @@ def plot(sim_states, sim_times, inputs, normal_vec, normal_val, max_time, step, 
         ax[0].set_title('Counter-Example Trace', fontsize=28)
 
     if inputs is not None:
-        inputs.append(inputs[-1]) # there is one less input than time instants
+        inputs.append(inputs[-1])  # there is one less input than time instants
         inputs = np.array(inputs, dtype=float)
 
         flat_inputs = []
         flat_times = []
 
-        for i in xrange(total_steps-1):
+        for i in range(total_steps-1):
             flat_times += [input_times[i], input_times[i+1]]
             flat_inputs += [inputs[i, :], inputs[i, :]]
 
@@ -223,7 +227,7 @@ def plot(sim_states, sim_times, inputs, normal_vec, normal_val, max_time, step, 
             flat_times += [input_times[0], input_times[0]]
             flat_inputs += [inputs[0, :], inputs[0, :]]
 
-        for row in xrange(len(flat_inputs[0])):
+        for row in range(len(flat_inputs[0])):
             ax[1].plot(flat_times, [single_input[row] for single_input in flat_inputs], label="$u_{}$".format(row+1))
 
     ##################
@@ -239,7 +243,7 @@ def plot(sim_states, sim_times, inputs, normal_vec, normal_val, max_time, step, 
 
     ##################
     # legend
-    for i in xrange(2 if inputs is not None else 1):
+    for i in range(2 if inputs is not None else 1):
         legend = ax[i].legend(loc='best', numpoints=1)
 
         # Set the fontsize

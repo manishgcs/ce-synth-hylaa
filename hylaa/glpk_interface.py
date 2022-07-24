@@ -292,7 +292,6 @@ class LpInstance(Freezable):
 
         dir_len, = direction.shape
         res_len, = result.shape
-
         Timers.tic("lp minimize")
         res = LpInstance._minimize(self.lp_data, direction, dir_len, result, res_len)
         Timers.toc("lp minimize")
@@ -301,7 +300,6 @@ class LpInstance(Freezable):
 
         if not is_feasible and error_if_infeasible:
             raise RuntimeError('minimize LP was infeasible when error_if_infeasible=True')
-
         return is_feasible
 
     @staticmethod

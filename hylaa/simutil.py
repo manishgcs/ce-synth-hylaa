@@ -233,6 +233,7 @@ class SimulationBundle(Freezable):
             new_val = np.array(np.matmul(a_exp, self.dy_data.dense_b_vector).flatten().tolist()[0]) + np.array(prev_val)
             prev_val = new_val
             result.append(new_val)
+            print(new_val)
         Timers.toc("simulation")
         return result
         # result = raw_sim_one_disc(start, steps, cur_step, self.dy_data, origin)

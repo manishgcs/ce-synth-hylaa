@@ -21,6 +21,7 @@ class HylaaSettings(Freezable):
 
         self.step = step # simulation step size
         self.num_steps = int(math.ceil(max_time / step))
+        self.max_time = max_time
 
         self.plot = plot_settings
 
